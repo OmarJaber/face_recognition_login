@@ -4,4 +4,4 @@ Face Recognition Login
 
 #### License
 
-mit
+mit# face_recognition_login
