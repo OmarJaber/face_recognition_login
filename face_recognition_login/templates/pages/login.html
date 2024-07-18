@@ -1,0 +1,117 @@
+{% extends "templates/web.html" %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-form">
+        <form id="login-form" action="/api/method/login" method="post">
+            <input type="text" name="usr" id="email-input" placeholder="Email" required>
+            <input type="password" name="pwd" placeholder="Password" required>
+            <button type="submit" id="login-btn">Login</button>
+        </form>
+        <button id="collect-face-model">Collect Face Model</button>
+        <button id="face-recognition-login">Login with Face Recognition</button>
+    </div>
+</div>
+<script>
+    document.getElementById('collect-face-model').onclick = function() {
+        const email = document.querySelector('input[name="usr"]').value.trim();
+        if (email === "") {
+            alert("Please enter your email first.");
+            return;
+        }
+
+        fetch('/api/method/face_recognition_login.api.collect_face_model', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ user_email: email })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }).then(data => {
+            console.log('Collect Face Model Response:', data);
+        }).catch(error => {
+            console.error('Collect Face Model Error:', error);
+        });
+    };
+
+    document.getElementById('face-recognition-login').onclick = function() {
+        const email = document.querySelector('input[name="usr"]').value.trim();
+        if (email === "") {
+            alert("Please enter your email first.");
+            return;
+        }
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        const canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        const context = canvas.getContext('2d');
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const capturedFace = canvas.toDataURL('image/jpeg');
+
+                        // Send capturedFace and email to backend for verification
+                        fetch('/api/method/face_recognition_login.api.verify_face', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ user_email: email, captured_face: capturedFace })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                return response.json();
+                            } else {
+                                console.log('Response was not JSON');
+                            }
+                        })
+                        .then(data => {
+                            if (data.message === "Face verified") {
+                                console.log('Successful Face Verification');
+                                alert('Face verified! Redirecting to desk.');
+                                // Uncomment below to redirect after successful verification
+                                // window.location.href = '/desk';
+                            } else {
+                                console.log('Face Verification Error:', data);
+                                alert('Face verification failed. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Face Recognition Login Error:', error);
+                            alert('Face recognition login failed. Please try again.');
+                        });
+                    };
+                })
+                .catch(error => {
+                    console.error('Error accessing webcam:', error);
+                    alert('Failed to access webcam. Please check your camera settings.');
+                });
+        } else {
+            alert('getUserMedia is not supported in this browser.');
+        }
+    };
+
+    // Optional: Add form submission prevention and validation
+    document.getElementById('login-btn').addEventListener('click', function(event) {
+        const email = document.getElementById('email-input').value.trim();
+        if (email === "") {
+            alert("You must add your email first.");
+            event.preventDefault(); // Prevent form submission
+        }
+    });
+
+</script>
+{% endblock %}

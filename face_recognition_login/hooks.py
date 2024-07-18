@@ -9,6 +9,16 @@ app_license = "mit"
 # Includes in <head>
 # ------------------
 
+# # Expose API methods
+# doc_events = {
+#     "User": {
+#         "validate": "face_recognition_login.api.collect_face_model",
+#         "validate": "face_recognition_login.api.verify_face",
+#     }
+# }
+
+
+
 # include js, css files in header of desk.html
 # app_include_css = "/assets/face_recognition_login/css/face_recognition_login.css"
 # app_include_js = "/assets/face_recognition_login/js/face_recognition_login.js"
@@ -48,6 +58,9 @@ app_license = "mit"
 # role_home_page = {
 # 	"Role": "home_page"
 # }
+
+
+
 
 # Generators
 # ----------
