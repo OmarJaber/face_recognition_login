@@ -63,14 +63,14 @@ def verify_face(user_email, **kwargs):
                                 similarity = calculate_similarity(face_resized, stored_face_resized)
                                 print(f"Similarity: {similarity:.2f}")
                                 
-                                if similarity > 0.80:  # Example threshold (80% similarity)
+                                if similarity > 0.60:  # Example threshold (80% similarity)
                                     face_verified = True
                                     cap.release()
                                     cv2.destroyAllWindows()
 
                                     # Log the user in
                                     login_manager = LoginManager()
-                                    login_manager.user = user_email
+                                    login_manager.user = npz_file.replace('_faces.npz', '')
                                     login_manager.post_login()
                                     
                                     # Prepare JSON response for success

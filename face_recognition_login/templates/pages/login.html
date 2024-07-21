@@ -3,56 +3,17 @@
 {% block content %}
 <div class="login-wrapper">
     <div class="login-form">
-        <form action="/api/method/login" method="post">
-            <input type="text" name="usr" placeholder="Email" required value="administrator">
-            <button type="submit">Login</button>
-        </form>
-        <button id="collect-face-model">Collect Face Model</button>
         <button id="face-recognition-login">Login with Face Recognition</button>
     </div>
 </div>
 <script>
-    document.getElementById('collect-face-model').onclick = function() {
-        const email = document.querySelector('input[name="usr"]').value.trim();
-        if (email === "") {
-            alert("Please enter your email first.");
-            return;
-        }
-
-        fetch('/api/method/face_recognition_login.api.collect_face_model', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ user_email: email })
-        }).then(response => {
-            return response.json();
-        }).then(data => {
-            if (data.status === "error") {
-                console.log(data.message)
-                alert('Error: ' + data.message.message);
-            } else {
-                console.log(data.message)
-            }
-        }).catch(error => {
-            console.error('Collect Face Model Error:', error);
-            alert('An unexpected error occurred. Please try again later.');
-        });
-    };
-
     document.getElementById('face-recognition-login').onclick = function() {
-        const email = document.querySelector('input[name="usr"]').value.trim();
-        if (email === "") {
-            alert("Please enter your email first.");
-            return;
-        }
-
         fetch('/api/method/face_recognition_login.api.verify_face', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ user_email: email })
+            body: JSON.stringify({ user_email: 'omar' })
         })
         .then(response => {
             return response.json();
@@ -72,14 +33,5 @@
             console.error('Face Recognition Login Error:', error);
         });
     };
-
-    // Optional: Add form submission prevention and validation
-    document.querySelector('form').addEventListener('submit', function(event) {
-        const email = document.querySelector('input[name="usr"]').value.trim();
-        if (email === "") {
-            alert("You must add your email first.");
-            event.preventDefault(); // Prevent form submission
-        }
-    });
 </script>
 {% endblock %}
