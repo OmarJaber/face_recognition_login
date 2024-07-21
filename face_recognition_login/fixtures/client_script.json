@@ -1,0 +1,13 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "User",
+  "enabled": 1,
+  "modified": "2024-07-21 14:35:59.548392",
+  "module": "Face Recognition Login",
+  "name": "Collect Model for Face Recognition",
+  "script": "frappe.ui.form.on('User', {\n\trefresh(frm) {\n\t\t// your code here\n\t}\n})",
+  "view": "Form"
+ }
+]
