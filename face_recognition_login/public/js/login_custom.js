@@ -4,67 +4,41 @@ $(document).ready(function() {
 
         // Create the button container with the face recognition button
         const buttonContainer = `
-        	<p class="text-muted login-divider">{{ _("or") }}</p>
+            <p class="text-muted login-divider">{{ _("or") }}</p>
             <div class="login-button-wrapper" style="margin-top: 15px; margin-bottom: 15px;">
-                <button id="face-recognition-login" class="btn btn-block btn-default btn-sm btn-login-option">Login with Face Recognition</button>
+                <button id="start-face-recognition" class="btn btn-block btn-default btn-sm btn-login-option">Login with Face Recognition</button>
             </div>
         `;
 
+        const verifymodal = `
+            <div class="modal fade" id="faceRecognitionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Face Recognition</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <img src="/assets/face_recognition_login/img/face_recognition_verify.gif" alt="Loading..." class="img-fluid">
+                    <p>Please stare at the camera.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+        `
+
         // Append the text divider and container div to the form-login div
+        $('body').append(verifymodal);
+
         formLogin.append(buttonContainer);
 
-        // Create a new section for face recognition login
-        const faceRecognitionSection = `
-            <section id="face-recognition-login-section" class="for-face-recognition-login" style="display: none;">
-            	{{ logo_section(_('Login with Face Recognition')) }}
-                <div class="login-content page-card">
-                    <form class="form-signin form-face-recognition" role="form">
-                        <div class="page-card-body">
-                            <div class="face-recognition-field">
-                                <button id="start-face-recognition" class="btn btn-sm btn-primary btn-block">Start Face Recognition</button>
-                            </div>
-                        </div>
-                        <div class="page-card-actions">
-                            <p class="text-center">
-                                <a href="#login" class="back-to-login">Back to Login</a>
-                            </p>
-                        </div>
-                    </form>
-                </div>
-            </section>
-        `;
-
-
-
-        // Append the new section to the existing content
-        $('.page_content .for-login-with-email-link').after(faceRecognitionSection);
-
-        // Handle button click to show the face recognition section
-        $('#face-recognition-login').on('click', function() {
-            $('.for-login').hide();
-            $('.for-face-recognition-login').show();
-
-            $('html, body').animate({
-                scrollTop: $('#face-recognition-login-section').offset().top
-            }, 1000);
-
-            window.location.hash = 'face-recognition-login-section';
-        });
-
-        // Handle back to login link click
-        $(document).on('click', '.back-to-login', function() {
-            $('.for-face-recognition-login').hide();
-            $('.for-login').show();
-
-            $('html, body').animate({
-                scrollTop: $('.for-login').offset().top
-            }, 1000);
-
-            window.location.hash = 'login';
-        });
 
         $('#start-face-recognition').on('click', function(event) {
             event.preventDefault();
+            $('#faceRecognitionModal').modal('show');
+
             fetch('/api/method/face_recognition_login.api.verify_face', {
                 method: 'POST',
                 headers: {
@@ -80,10 +54,14 @@ $(document).ready(function() {
                     console.log('Successful Login Redirect');
                     console.log('Welcome: ', result.username);
                 } else {
+                    $('#faceRecognitionModal').modal('hide');
+                    frappe.msgprint('Face Verification Error:', result.message)
                     console.log('Face Verification Error:', result.message);
                 }
             })
             .catch(error => {
+                $('#faceRecognitionModal').modal('hide');
+                frappe.msgprint('Face Recognition Login Error:', error)
                 console.error('Face Recognition Login Error:', error);
             });
         });
