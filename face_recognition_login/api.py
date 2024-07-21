@@ -4,8 +4,18 @@ from face_recognition_login.face_recognition_login.verify_face import verify_fac
 
 @frappe.whitelist(allow_guest=True)
 def collect_face_model(user_email):
-    return collect_model(user_email)
+    try:
+        response = collect_model(user_email)
+        return {"status": "success", "message": response}
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), 'Collect Face Model Error')
+        return {"status": "error", "message": str(e)}, 500
 
 @frappe.whitelist(allow_guest=True)
 def verify_face(user_email):
-    return verify_model(user_email)
+    try:
+        response = verify_model(user_email)
+        return {"status": "success", "message": response}
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), 'Verify Face Error')
+        return {"status": "error", "message": str(e)}, 500

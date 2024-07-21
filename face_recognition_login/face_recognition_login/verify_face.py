@@ -5,86 +5,115 @@ import frappe
 from frappe.auth import LoginManager
 
 def verify_face(user_email, **kwargs):
-    # Ensure the folder path in ERPNext files directory
-    files_path = frappe.get_site_path('public', 'files', 'User Face Models')
-    user_folder = os.path.join(files_path, user_email)
-    
-    # Check if the user's folder exists
-    if not os.path.exists(user_folder):
-        return { "message": "Face images not found for this user." }
-    
-    # Initialize the camera
-    cap = cv2.VideoCapture(0)
-
-    if not cap.isOpened():
-        return { "message": "Failed to open camera." }
-
-    # Initialize the face detector
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("Failed to capture frame.")
-            continue
+    try:
+        # Ensure the folder path in ERPNext files directory
+        files_path = frappe.get_site_path('public', 'files', 'User Face Models')
+        print(f"Files path: {files_path}")
         
-        # Convert frame to grayscale
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        
-        # Detect faces
-        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-        
-        for (x, y, w, h) in faces:
-            # Draw a rectangle around the detected face
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        # Initialize the camera
+        cap = cv2.VideoCapture(0)
+        if not cap.isOpened():
+            return {"status": "error", "message": "Failed to open camera."}
+
+        # Initialize the face detector
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+        face_verified = False
+        face_detected = False
+
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                print("Failed to capture frame.")
+                continue
             
-            # Extract the face region from the frame and resize it
-            face_region = gray[y:y+h, x:x+w]
-            face_resized = cv2.resize(face_region, (100, 100))
+            # Convert frame to grayscale
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             
-            # Compare the captured face with the stored face models in user's folder
-            for filename in sorted(os.listdir(user_folder)):
-                if filename.endswith('.jpg'):
-                    image_path = os.path.join(user_folder, filename)
-                    stored_face = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+            # Detect faces
+            faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+            print(f"Detected faces: {len(faces)}")
+            
+            if len(faces) > 0:
+                face_detected = True
+            
+            for (x, y, w, h) in faces:
+                try:
+                    # Draw a rectangle around the detected face
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
                     
-                    # Resize stored_face to match face_resized dimensions
-                    stored_face_resized = cv2.resize(stored_face, (100, 100))
+                    # Extract the face region from the frame and resize it
+                    face_region = gray[y:y+h, x:x+w]
+                    face_resized = cv2.resize(face_region, (200, 200))
+                    print(f"Processing face region of size: {face_resized.shape}")
                     
-                    # Compare the resized faces
-                    similarity = calculate_similarity(face_resized, stored_face_resized)
-                    cv2.putText(frame, f"Similarity: {similarity:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+                    # Compare the captured face with the stored face models
+                    for npz_file in sorted(os.listdir(files_path)):
+                        if npz_file.endswith('_faces.npz'):
+                            npz_path = os.path.join(files_path, npz_file)
+                            print(f"Loading data from: {npz_path}")
+                            data = np.load(npz_path)
+                            stored_faces = data['faces']
+                            print(f"Loaded stored faces of shape: {stored_faces.shape}")
+
+                            for stored_face in stored_faces:
+                                stored_face_resized = cv2.resize(stored_face, (200, 200))
+                                
+                                # Compare the resized faces
+                                similarity = calculate_similarity(face_resized, stored_face_resized)
+                                print(f"Similarity: {similarity:.2f}")
+                                
+                                if similarity > 0.80:  # Example threshold (80% similarity)
+                                    face_verified = True
+                                    cap.release()
+                                    cv2.destroyAllWindows()
+
+                                    # Log the user in
+                                    # login_manager = LoginManager()
+                                    # login_manager.user = user_email
+                                    # login_manager.post_login()
+                                    
+                                    # Prepare JSON response for success
+                                    return {"status": "success", "message": {"status": "success", "message": "Face verified", "username": npz_file.replace('_faces.npz', '')}}
                     
-                    if similarity > 0.95:  # Example threshold (95% similarity)
-                        cap.release()
-                        cv2.destroyAllWindows()
-                        
-                        # Log the user in
-                        # login_manager = LoginManager()
-                        # login_manager.user = user_email
-                        # login_manager.post_login()
-                        
-                        # Prepare JSON response for success
-                        return { "message": "Face verified successfully." }
+                except Exception as e:
+                    print(f"Error processing face: {e}")
+
+            # Display the frame with rectangles and similarity text (commented out for now)
+            # cv2.imshow('Face Recognition', frame)
+            
+            # Exit the loop if 'q' is pressed
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
+
+        # Check if any face was detected and not verified
+        if face_detected and not face_verified:
+            return {"status": "error", "message": "Face detected but not recognized. Please ensure your model is collected and try again."}
         
-        # Display the frame with rectangles and similarity text
-        cv2.imshow('Face Recognition', frame)
+        # Check if no faces were detected
+        if not face_detected:
+            return {"status": "error", "message": "No face detected. Please ensure you are in view of the camera."}
         
-        # Exit the loop if 'q' is pressed
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    
-    cap.release()
-    cv2.destroyAllWindows()
-    
-    # Prepare JSON response for failure
-    return { "message": "Face verification failed." }
+        # Prepare JSON response for failure if no face was verified
+        return {"status": "error", "message": "Face verification failed."}
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return {"status": "error", "message": f"An internal error occurred during face verification: {e}"}
 
 def calculate_similarity(face1, face2):
-    # Implement your face comparison logic here
-    # Example: Calculate similarity using MSE or other techniques
-    mse = ((face1 - face2) ** 2).mean()
-    similarity = 1 - mse / 255.0  # Normalize to a similarity score (0-1)
-    return similarity
-
-
+    try:
+        # Ensure both faces have the same shape
+        if face1.shape != face2.shape:
+            face2 = cv2.resize(face2, (face1.shape[1], face1.shape[0]))
+        
+        # Implement your face comparison logic here
+        # Example: Calculate similarity using MSE or other techniques
+        mse = ((face1 - face2) ** 2).mean()
+        similarity = 1 - mse / 255.0  # Normalize to a similarity score (0-1)
+        return similarity
+    except Exception as e:
+        print(f"Error calculating similarity: {e}")
+        return 0

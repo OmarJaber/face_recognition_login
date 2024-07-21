@@ -4,8 +4,7 @@
 <div class="login-wrapper">
     <div class="login-form">
         <form action="/api/method/login" method="post">
-            <input type="text" name="usr" placeholder="Email" required>
-            <input type="password" name="pwd" placeholder="Password" required>
+            <input type="text" name="usr" placeholder="Email" required value="omar.ja93@gmail.com">
             <button type="submit">Login</button>
         </form>
         <button id="collect-face-model">Collect Face Model</button>
@@ -27,14 +26,16 @@
             },
             body: JSON.stringify({ user_email: email })
         }).then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok: ' + response.status + ' ' + response.statusText);
-            }
             return response.json();
         }).then(data => {
-            console.log('Collect Face Model Response:', data);
+            if (data.status === "error") {
+                alert('Error: ' + data.message);
+            } else {
+                alert('Success: ' + data.message);
+            }
         }).catch(error => {
             console.error('Collect Face Model Error:', error);
+            alert('An unexpected error occurred. Please try again later.');
         });
     };
 
@@ -53,18 +54,20 @@
             body: JSON.stringify({ user_email: email })
         })
         .then(response => {
-            
             return response.json();
         })
         .then(data => {
-            if (data.message === "Face verified") {
-                window.location.href = '/';
+            const result = data.message.message;
+            if (result.status === "success" && result.message === "Face verified") {
+                // window.location.href = '/';
                 console.log('Successful Login Redirect');
+                console.log('Welcome: ', result.username);
             } else {
-                console.log('Face Verification Error:', data);
+                console.log('Face Verification Error:', result.message);
             }
         })
         .catch(error => {
+            console.log(error)
             console.error('Face Recognition Login Error:', error);
         });
     };
@@ -77,6 +80,5 @@
             event.preventDefault(); // Prevent form submission
         }
     });
-
 </script>
 {% endblock %}
