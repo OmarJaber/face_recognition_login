@@ -4,7 +4,7 @@
 <div class="login-wrapper">
     <div class="login-form">
         <form action="/api/method/login" method="post">
-            <input type="text" name="usr" placeholder="Email" required value="omar.ja93@gmail.com">
+            <input type="text" name="usr" placeholder="Email" required value="administrator">
             <button type="submit">Login</button>
         </form>
         <button id="collect-face-model">Collect Face Model</button>
@@ -29,9 +29,11 @@
             return response.json();
         }).then(data => {
             if (data.status === "error") {
-                alert('Error: ' + data.message);
+                console.log(data.message)
+                alert('Error: ' + data.message.message);
             } else {
-                alert('Success: ' + data.message);
+                console.log(data.message)
+                alert('Success: ' + data.message.message);
             }
         }).catch(error => {
             console.error('Collect Face Model Error:', error);
@@ -59,7 +61,7 @@
         .then(data => {
             const result = data.message.message;
             if (result.status === "success" && result.message === "Face verified") {
-                // window.location.href = '/';
+                window.location.href = '/desk';
                 console.log('Successful Login Redirect');
                 console.log('Welcome: ', result.username);
             } else {

@@ -69,12 +69,12 @@ def verify_face(user_email, **kwargs):
                                     cv2.destroyAllWindows()
 
                                     # Log the user in
-                                    # login_manager = LoginManager()
-                                    # login_manager.user = user_email
-                                    # login_manager.post_login()
+                                    login_manager = LoginManager()
+                                    login_manager.user = user_email
+                                    login_manager.post_login()
                                     
                                     # Prepare JSON response for success
-                                    return {"status": "success", "message": {"status": "success", "message": "Face verified", "username": npz_file.replace('_faces.npz', '')}}
+                                    return {"status": "success", "message": "Face verified", "username": npz_file.replace('_faces.npz', '')}
                     
                 except Exception as e:
                     print(f"Error processing face: {e}")
