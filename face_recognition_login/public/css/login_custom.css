@@ -1,0 +1,118 @@
+.for-face-recognition-login {
+  display: none;
+}
+
+.for-face-recognition-login .page-card {
+  padding: 45px 10px;
+  background-color: #fff;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.for-face-recognition-login .page-card form {
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.for-face-recognition-login .page-card form .form-group {
+  margin-bottom: var(--margin-sm);
+}
+
+.for-face-recognition-login .page-card .page-card-actions {
+  margin-top: var(--margin-lg);
+}
+
+.for-face-recognition-login .page-card .page-card-body ::placeholder,
+.for-face-recognition-login .page-card .page-card-body ::-ms-input-placeholder {
+  /* Microsoft Edge */
+  color: var(--text-light);
+  opacity: 1; /* Firefox */
+}
+
+.for-face-recognition-login .page-card .page-card-body .form-label {
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  letter-spacing: 0.02em;
+}
+
+.for-face-recognition-login .page-card .page-card-body .field-icon {
+  right: 9px;
+  top: 5px;
+  position: absolute;
+  z-index: 2;
+}
+
+.for-face-recognition-login.page-card .page-card-body .btn-login-option {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.015em;
+  color: var(--text-gray-700);
+  background: var(--gray-100);
+  box-shadow: none;
+  border: none;
+  display: flex;
+  place-content: center;
+}
+
+.for-face-recognition-login .page-card .page-card-body .btn-login-option.btn-salesforce i {
+  color: var(--blue-400);
+}
+
+.for-face-recognition-login .page-card .page-card-body .btn-login-option img {
+  margin-left: var(--padding-xs);
+}
+
+.for-face-recognition-login .page-card .page-card-body .btn-login-option:hover {
+  border: none;
+  background: var(--gray-300);
+}
+
+.for-face-recognition-login .page-card .page-card-body .social-logins {
+  margin-top: var(--margin-md);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  letter-spacing: 0.02em;
+}
+
+.for-face-recognition-login .page-card .page-card-body .social-logins .social-login-buttons {
+  margin-top: var(--margin-md);
+}
+
+.for-face-recognition-login .page-card .page-card-body .social-logins .social-login-buttons .login-button-wrapper {
+  min-width: 50%;
+  padding: 0 4px;
+  margin-bottom: var(--margin-md);
+}
+
+@media (min-width: 768px) {
+  .for-face-recognition-login .page-card .page-card-body .social-logins .social-login-buttons .login-button-wrapper {
+    min-width: 33.33%;
+  }
+}
+
+.for-face-recognition-login .page-card .page-card-body .social-logins .social-login-buttons .login-button-wrapper:last-child {
+  margin-bottom: 0;
+}
+
+.for-face-recognition-login .page-card .page-card-body .login-divider {
+  margin: var(--margin-md) 0;
+}
+
+.for-face-recognition-login .sign-up-message {
+  margin-top: 1rem;
+  margin-bottom: 0;
+  color: var(--text-light);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  letter-spacing: 0.02em;
+}
+
+.for-face-recognition-login .sign-up-message a {
+  color: var(--primary);
+}
+
+.for-face-recognition-login .invalid-login {
+  -webkit-animation: wiggle 0.5s linear;
+}

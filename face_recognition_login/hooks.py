@@ -14,8 +14,8 @@ app_license = "mit"
 # app_include_js = "/assets/face_recognition_login/js/face_recognition_login.js"
 
 # include js, css files in header of web template
-# web_include_css = "/assets/face_recognition_login/css/face_recognition_login.css"
-# web_include_js = "/assets/face_recognition_login/js/face_recognition_login.js"
+web_include_css = "/assets/face_recognition_login/css/login_custom.css"
+web_include_js = "/assets/face_recognition_login/js/login_custom.js"
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "face_recognition_login/public/scss/website"
