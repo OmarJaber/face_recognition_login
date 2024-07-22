@@ -5,7 +5,7 @@ import frappe
 from frappe.auth import LoginManager
 import time
 
-def verify_face(user_email, **kwargs):
+def verify_face():
     try:
         # Ensure the folder path in ERPNext files directory
         files_path = frappe.get_site_path('public', 'files', 'Users Face Model')
@@ -70,7 +70,7 @@ def verify_face(user_email, **kwargs):
                                     face_verified = True
                                     cap.release()
                                     cv2.destroyAllWindows()
-                                    
+
                                     # Log the user in
                                     login_manager = LoginManager()
                                     login_manager.user = npz_file.replace('_faces.npz', '')

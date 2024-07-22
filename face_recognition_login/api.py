@@ -12,9 +12,9 @@ def collect_face_model(user_email):
         return {"status": "error", "message": str(e)}, 500
 
 @frappe.whitelist(allow_guest=True)
-def verify_face(user_email):
+def verify_face():
     try:
-        response = verify_model(user_email)
+        response = verify_model()
         return {"status": "success", "message": response}
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), 'Verify Face Error')

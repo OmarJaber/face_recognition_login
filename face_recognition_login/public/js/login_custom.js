@@ -43,8 +43,7 @@ $(document).ready(function() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ user_email: 'omar' })
+                }
             })
             .then(response => response.json())
             .then(data => {
