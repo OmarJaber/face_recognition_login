@@ -29,7 +29,7 @@ $(document).ready(function() {
             </div>
         `
 
-        // Append the text divider and container div to the form-login div
+        // Append the verifymodal to body
         $('body').append(verifymodal);
 
         formLogin.append(buttonContainer);
@@ -48,6 +48,7 @@ $(document).ready(function() {
             })
             .then(response => response.json())
             .then(data => {
+                console.log(data)
                 const result = data.message.message;
                 if (result.status === "success" && result.message === "Face verified") {
                     window.location.href = '/desk';

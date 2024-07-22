@@ -8,7 +8,7 @@ import time
 def verify_face(user_email, **kwargs):
     try:
         # Ensure the folder path in ERPNext files directory
-        files_path = frappe.get_site_path('public', 'files', 'User Face Models')
+        files_path = frappe.get_site_path('public', 'files', 'Users Face Model')
         print(f"Files path: {files_path}")
 
         # Initialize the camera

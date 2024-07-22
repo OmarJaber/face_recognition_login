@@ -6,7 +6,7 @@ import frappe
 def collect_face_model(user_email):
     try:
         # Folder setup
-        models_folder = frappe.utils.get_files_path('User Face Models')
+        models_folder = frappe.utils.get_files_path('Users Face Model')
         if not os.path.exists(models_folder):
             os.makedirs(models_folder)
 
