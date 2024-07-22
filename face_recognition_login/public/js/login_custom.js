@@ -1,132 +1,69 @@
-frappe.ui.form.on('User', {
-    refresh: function(frm) {
-        if (!frm.is_new()) {
+$(document).ready(function() {
+    const formLogin = $('.login-content .form-login .page-card-body .social-logins');
+    if (formLogin.length) {
 
-            const collectmodal = `
-                <div class="modal fade" id="faceCollectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Collecting Face Models, Please wait...</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                        <div class="progress">
-                          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-                            0%
-                          </div>
-                        </div>
-                        <br>
-                        <img src="/assets/face_recognition_login/img/collect_face_models.gif" alt="Loading..." class="img-fluid">
-                        <br>
-                        <br>
-                        <h4><b>Move your head</b> at different angles for better accuracy</h4>
-                      </div>
-                    </div>
+        // Create the button container with the face recognition button
+        const buttonContainer = `
+            <p class="text-muted login-divider">{{ _("or") }}</p>
+            <div class="login-button-wrapper" style="margin-top: 15px; margin-bottom: 15px;">
+                <button id="start-face-recognition" class="btn btn-block btn-default btn-sm btn-login-option">Login with Face Recognition</button>
+            </div>
+        `;
+
+        const verifymodal = `
+            <div class="modal fade" id="faceRecognitionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Face Recognition</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <img src="/assets/face_recognition_login/img/face_recognition_verify.gif" alt="Loading..." class="img-fluid">
+                    <p>Please stare at the camera.</p>
                   </div>
                 </div>
-            `
+              </div>
+            </div>
+        `
 
-            // Append the collectmodal to body
-            $('body').append(collectmodal);
+        // Append the text divider and container div to the form-login div
+        $('body').append(verifymodal);
+
+        formLogin.append(buttonContainer);
 
 
-            frm.add_custom_button(__('Collect Face Model'), function() {
-                // Create a new dialog
-                let dialog = new frappe.ui.Dialog({
-                    title: __('Instructions'),
-                    indicator: 'orange',
-                    fields: [
-                        {
-                            fieldtype: 'HTML',
-                            fieldname: 'instructions_html',
-                            options: `
-                                <div>
-                                    <img src="/assets/face_recognition_login/img/instructions.png" alt="Instructions Image" style="width: 100%; height: auto;">
-                                    <p>After clicking OK, please do the following:</p>
-                                    <ol>
-                                        <li><b>Move your head</b> at different angles for better accuracy.</li>
-                                        <li><b>Stare at the camera</b> until we collect the required models for your face.</li>
-                                        <li>A <b>success message</b> will pop up when finished.</li>
-                                    </ol>
-                                    <p style="color: red; font-weight: bold;">Important: Make sure you follow all the steps carefully to ensure the accuracy of the model.</p>
-                                </div>
-                            `
-                        },
-                        {
-                            fieldtype: 'Check',
-                            fieldname: 'accept_instructions',
-                            label: __('I have read and understood the instructions'),
-                            reqd: 1
-                        }
-                    ],
-                    primary_action_label: __('OK'),
-                    primary_action(values) {
-                        if (values.accept_instructions) {
+        $('#start-face-recognition').on('click', function(event) {
+            event.preventDefault();
+            $('#faceRecognitionModal').modal('show');
 
-                            const email = frm.doc.email;
-                            if (!email) {
-                                alert("Please enter your email first.");
-                                return;
-                            }
-
-                            $('#faceCollectModal').modal('show');
-
-                            fetch('/api/method/face_recognition_login.api.collect_face_model', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-Frappe-CSRF-Token': frappe.csrf_token
-                                },
-                                body: JSON.stringify({ user_email: email })
-                            }).then(response => {
-                                return response.json();
-                            }).then(data => {
-                                $('#faceCollectModal').modal('hide');
-                                if (data.status === "error") {
-                                    frappe.throw(data.message)
-                                } else {
-                                    frappe.msgprint({
-                                        title: __('Success'),
-                                        indicator: 'green',
-                                        message: String(data.message.message)
-                                    });
-                                }
-                            }).catch(error => {
-                                $('#faceCollectModal').modal('hide');
-                                console.error('Collect Face Model Error:', error);
-                                frappe.throw('An unexpected error occurred. Please try again later.')
-                            });
-
-                            // Start polling for progress
-                            const progressBar = $('#faceCollectModal .progress-bar');
-                            const interval = setInterval(() => {
-                                fetch(`/api/method/face_recognition_login.face_recognition_login.collect_face_model.get_progress?user_email=${email}`)
-                                    .then(response => response.json())
-                                    .then(progress => {
-                                        const progressValue = parseInt(progress.message);
-
-                                        progressBar.css('width', `${progressValue}%`);
-                                        progressBar.attr('aria-valuenow', progressValue);
-                                        progressBar.text(`${progressValue}%`);
-                                        if (progress >= 100) {
-                                            clearInterval(interval);
-                                        }
-                                    });
-                            }, 100); // Poll every second
-
-                            dialog.hide();
-                        } else {
-                            frappe.msgprint(__('Please accept the instructions to proceed.'));
-                        }
-                    }
-                });
-
-                // Show the dialog
-                dialog.show();
-            }).addClass('btn-success');
-        }
+            fetch('/api/method/face_recognition_login.api.verify_face', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_email: 'omar' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const result = data.message.message;
+                if (result.status === "success" && result.message === "Face verified") {
+                    window.location.href = '/desk';
+                    console.log('Successful Login Redirect');
+                    console.log('Welcome: ', result.username);
+                } else {
+                    $('#faceRecognitionModal').modal('hide');
+                    frappe.msgprint('Face Recognition Login Error:', error)
+                    console.log('Face Verification Error:', result.message);
+                }
+            })
+            .catch(error => {
+                $('#faceRecognitionModal').modal('hide');
+                frappe.msgprint('Face Recognition Login Error:', error)
+                console.error('Face Recognition Login Error:', error);
+            });
+        });
     }
 });
