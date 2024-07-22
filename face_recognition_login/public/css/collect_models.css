@@ -1,0 +1,7 @@
+#faceCollectModal .modal-dialog{
+  max-width: 50rem;
+}
+
+.progress {
+  height: 1rem;
+}

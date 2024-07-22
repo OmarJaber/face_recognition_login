@@ -10,7 +10,7 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/face_recognition_login/css/face_recognition_login.css"
+app_include_css = "/assets/face_recognition_login/css/collect_models.css"
 # app_include_js = "/assets/face_recognition_login/js/face_recognition_login.js"
 
 # include js, css files in header of web template
