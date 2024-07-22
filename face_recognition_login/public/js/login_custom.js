@@ -50,19 +50,19 @@ $(document).ready(function() {
             .then(data => {
                 const result = data.message.message;
                 if (result.status === "success" && result.message === "Face verified") {
+                    frappe.msgprint('Welcome: ' + result.username)
                     window.location.href = '/desk';
                     console.log('Successful Login Redirect');
-                    console.log('Welcome: ', result.username);
                 } else {
                     $('#faceRecognitionModal').modal('hide');
-                    frappe.msgprint('Face Recognition Login Error:', error)
+                    frappe.msgprint('Face Recognition Login Error:' + result.message)
                     console.log('Face Verification Error:', result.message);
                 }
             })
             .catch(error => {
                 $('#faceRecognitionModal').modal('hide');
-                frappe.msgprint('Face Recognition Login Error:', error)
-                console.error('Face Recognition Login Error:', error);
+                frappe.msgprint('Face Recognition Login Error:' + error)
+                console.log('Face Verification Error:', error);
             });
         });
     }
