@@ -49,6 +49,7 @@ $(document).ready(function() {
             .then(data => {
                 const result = data.message.message;
                 if (result.status === "success" && result.message === "Face verified") {
+                    $('#faceRecognitionModal').modal('hide');
                     frappe.msgprint('Welcome: ' + result.username)
                     window.location.href = '/desk';
                     console.log('Successful Login Redirect');
